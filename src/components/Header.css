@@ -1,0 +1,36 @@
+/* src/components/Header.css */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 10px 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 80px;
+    margin-right: 10px;
+}
+
+.app-name {
+    font-size: 24px;
+    color: #343a40;
+}
+
+.menu-section {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    font-size: 24px;
+    color: #343a40;
+    margin-left: 20px;
+    cursor: pointer;
+}

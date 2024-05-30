@@ -1,0 +1,34 @@
+/* src/components/Sidebar.css */
+/* src/components/Sidebar.css */
+
+.sidebar {
+    width: 200px;
+    background-color: #343a40;
+    color: #fff;
+    padding: 20px;
+    position: fixed;
+    top: 100px; /* Ajustez cette valeur pour augmenter l'espace entre l'en-tête et la barre latérale */
+    height: calc(100% - 100px); /* Ajustez cette valeur pour la hauteur totale de la barre latérale */
+    overflow-y: auto;
+}
+
+/* Le reste du CSS de la barre latérale reste le même */
+
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 20px 0;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.sidebar ul li a:hover {
+    text-decoration: underline;
+}

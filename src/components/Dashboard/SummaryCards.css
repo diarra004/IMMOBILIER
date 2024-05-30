@@ -1,0 +1,17 @@
+
+  
+  .card-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    flex-basis: calc(50% - 10px); /* Pour deux cartes par ligne */
+    
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  

@@ -1,0 +1,61 @@
+/* Style général */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  button {
+    display: block;
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  button {
+    background-color:#343a40;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color:#343a40;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    button {
+      width: calc(100% - 20px);
+    }
+  }
+  
