@@ -2,13 +2,15 @@
 /* src/components/Sidebar.css */
 
 .sidebar {
-    width: 200px;
+    width: 190px;
     background-color: #343a40;
     color: #fff;
     padding: 20px;
-    position: fixed;
-    top: 100px; /* Ajustez cette valeur pour augmenter l'espace entre l'en-tête et la barre latérale */
-    height: calc(100% - 100px); /* Ajustez cette valeur pour la hauteur totale de la barre latérale */
+    margin-top: 100px;
+    position: absolute;
+   
+    top: 0px; /* Ajustez cette valeur pour augmenter l'espace entre l'en-tête et la barre latérale */
+    height: calc(200% - 300px); /* Ajustez cette valeur pour la hauteur totale de la barre latérale */
     overflow-y: auto;
 }
 
