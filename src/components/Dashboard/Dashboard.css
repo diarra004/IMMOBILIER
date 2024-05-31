@@ -1,0 +1,16 @@
+.graphiques-container {
+    display: flex;
+    justify-content: flex-start; /* Aligner les éléments sur le côté gauche */
+  }
+  
+  
+  .graphique {
+    flex: 1;
+    margin-right: 20px;
+    max-width: 50%; /* Limitez la largeur des graphiques à 50% de l'espace disponible */
+  }
+  
+  .graphique:last-child {
+    margin-right: 0; /* Supprimez la marge à droite du dernier graphique */
+  }
+  
