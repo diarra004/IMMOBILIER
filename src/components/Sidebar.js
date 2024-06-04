@@ -21,7 +21,7 @@ const Sidebar = () => {
                     <NavLink to="/paiement" activeClassName="active-link">Paiements</NavLink>
                 </li>
                 <li>
-                    <NavLink to="/rapport" activeClassName="active-link">Rapports</NavLink>
+                    <NavLink to="/financial-reports" activeClassName="active-link">Rapports Financiers</NavLink> {/* Corriger l'URL */}
                 </li>
             </ul>
         </nav>
