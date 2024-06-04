@@ -1,0 +1,10 @@
+form{
+    display:grid;
+    grid-column:2;
+    width: auto;
+}
+input, select {
+    display:inline-block;
+    width: 40%;
+    border-radius:30%;
+}
