@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import Dashboard from './Dashboard/Dashboard';
 import Locataire from './Locataire/Locataire';
 import Proprietaire from './Proprietaire/Proprietaire';
+import Rapport from './Rapport/Rapport';
 
 import './MainLayout.css';
 
@@ -22,6 +23,7 @@ const MainLayout = () => {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/locataire" element={<Locataire />} />
                         <Route path="/proprietaire" element={<Proprietaire />} />
+                        <Route path="/rapport" element={<Rapport />} />
                         {/* Ajoutez d'autres routes ici si nécessaire */}
                     </Routes>
                 </div>
