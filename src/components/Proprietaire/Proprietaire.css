@@ -1,0 +1,133 @@
+/* Style général */
+.container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .tenant-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .tenant-row button {
+    margin-right: 10px; /* Ajoute un espace à droite du premier bouton */
+  }
+  
+  .tenant-row button:last-child {
+    margin-left: 10px; /* Ajoute un espace à gauche du dernier bouton */
+  }
+  
+  
+  .form-container,
+  .tenants-container {
+    width: 45%;
+  }
+  
+  .form-container {
+    /* Vos styles pour le formulaire */
+  }
+  
+  .tenants-container {
+    /* Vos styles pour la liste des locataires */
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    
+  }
+  
+  label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    width: 90%; /* Ajouté pour uniformiser la largeur des labels */
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  button {
+    display: block;
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  button {
+    background-color: #343a40;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #23272b;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    button {
+      width: calc(100% - 20px);
+    }
+  }
+  .error-dialog {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+  
+  .error-dialog p {
+    margin: 0 0 10px;
+  }
+  
+  .error-dialog button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .error-dialog button:hover {
+    background-color: #d32f2f;
+  }
+  
+  

@@ -70,19 +70,40 @@ const Locataire = () => {
     setEditingTenant(tenant);
     setNewTenant(tenant);
   };
+  
 
   const handleDelete = async (tenant) => {
     if (window.confirm(`Voulez-vous vraiment supprimer ${tenant.name} ?`)) {
-      try {
-        const id = tenant.id; // Récupérer l'ID du locataire à partir de l'objet tenant
-        await axios.delete(`http://localhost:3001/api/locataires/${id}`);
-        const updatedTenants = tenants.filter((t) => t !== tenant);
-        setTenants(updatedTenants);
-      } catch (error) {
-        console.error('Erreur lors de la suppression du locataire:', error);
-      }
+        try {
+            const id = tenant.id;
+            const token = localStorage.getItem('token');
+            console.log('Token:', token); // Vérifiez que le token est bien récupéré
+            const response = await axios.delete(`http://localhost:3001/api/locataires/${id}`, {
+                headers: {
+                    'x-access-token': token
+                }
+            });
+            console.log('Response:', response); // Vérifiez la réponse du serveur
+            if (response.status === 200) {
+                const updatedTenants = tenants.filter((t) => t !== tenant);
+                setTenants(updatedTenants);
+            } else {
+                setErrorMessage(response.data.error);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la suppression du locataire:', error);
+            setErrorMessage('Vous n\'êtes pas autorisé à effectuer cette action.');
+        }
     }
-  };
+    {errorMessage && (
+      <div className="error-dialog">
+        <p>{errorMessage}</p>
+        <button onClick={() => setErrorMessage('')}>Fermer</button>
+      </div>
+    )}
+    
+};
+
   return (
     <div className="container">
       <div className="form-container">

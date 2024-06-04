@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ role }) => {
     return (
         <nav className="sidebar">
             <h2 className="sidebar-title">Menu</h2>
@@ -23,6 +23,11 @@ const Sidebar = () => {
                 <li>
                     <NavLink to="/rapport" activeClassName="active-link">Rapports</NavLink>
                 </li>
+                {role === 'admin' && (
+                    <li>
+                        <NavLink to="/gestion-utilisateurs" activeClassName="active-link">Gestion des Utilisateurs</NavLink>
+                    </li>
+                )}
             </ul>
         </nav>
     );
