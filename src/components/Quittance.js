@@ -21,11 +21,10 @@ function Quittance() {
     }
   };
 
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Calculer la Quittance</h1>
+    <div className="quittance">
+      <header className="quittance-header">
+        <h1>Quittance</h1>
         <div className="input-container">
           <input
             type="text"
@@ -36,26 +35,22 @@ function Quittance() {
           <button onClick={fetchQuittance}>Obtenir la Quittance</button>
         </div>
         {error && <p className="error">{error}</p>}
-        {quittance !== null ? (
-          <div className="result">
-            <h2>Quittance pour l'utilisateur {userId}</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Utilisateur ID</th>
-                  <th>Montant total des factures payées (€)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{userId}</td>
-                  <td>{quittance}</td>
-                </tr>
-              </tbody>
-            </table>
+        {quittance !== null && (
+          <div className="receipt">
+            <div className="header">
+              <h2>Quittance</h2>
+              <p>Date: {new Date().toLocaleDateString()}</p>
+              <p>Utilisateur ID: {userId}</p>
+            </div>
+            <div className="details">
+              <h3>Détails de la facture</h3>
+              <p>Montant total des factures payées : {quittance} €</p>
+            </div>
+            <div className="total">
+              <h3>Total</h3>
+              <p>Montant total à payer : {quittance} €</p>
+            </div>
           </div>
-        ) : (
-          <p>Aucune donnée disponible pour cet utilisateur.</p>
         )}
       </header>
     </div>
@@ -63,4 +58,3 @@ function Quittance() {
 }
 
 export default App;
-

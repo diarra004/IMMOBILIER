@@ -1,0 +1,58 @@
+.quittance {
+    text-align: center;
+}
+
+.quittance-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.input-container {
+    margin: 20px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 20px;
+}
+
+.result table {
+    width: 50%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    background-color: #fff;
+    color: #000;
+}
+
+.result th,
+.result td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.result th {
+    background-color: #f2f2f2;
+}
+
+.error {
+    color: red;
+    margin-top: 20px;
+}
