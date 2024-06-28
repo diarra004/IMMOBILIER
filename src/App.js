@@ -5,6 +5,10 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import Locataire from './components/Locataire/Locataire';
 import Proprietaire from './components/Proprietaire/Proprietaire';
+import Rapport from './components/Rapport/Rapport';
+import Paiement from './components/Paiement/Paiement';
+import Quittance from './components/Quittance/Quittance';
+import Arrieres from './components/Arrieres/Arrieres';
 
 import './App.css';
 
@@ -35,6 +39,10 @@ const App = () => {
                                         <Route path="/dashboard" element={<Dashboard />} />
                                         <Route path="/locataire" element={<Locataire />} />
                                         <Route path="/proprietaire" element={<Proprietaire />} />
+                                        <Route path="/rapport" element={<Rapport />} />
+                                        <Route path="/paiement" element={<Paiement />} />
+                                        <Route path="/quittance" element={<Quittance />} />
+                                        <Route path="/arrieres" element={<Arrieres />} />
                                         {/* Ajoutez d'autres routes ici si nécessaire */}
                                        
                                     </Routes>

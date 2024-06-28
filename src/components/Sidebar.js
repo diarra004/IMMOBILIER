@@ -23,6 +23,12 @@ const Sidebar = ({ role }) => {
                 <li>
                     <NavLink to="/rapport" activeClassName="active-link">Rapports</NavLink>
                 </li>
+                <li>
+                    <NavLink to="/quittance" activeClassName="active-link">Quittances et Bulletins de versements</NavLink>
+                </li>
+                <li>
+                    <NavLink to="/arrieres" activeClassName="active-link">Arrierer</NavLink>
+                </li>
                 {role === 'admin' && (
                     <li>
                         <NavLink to="/gestion-utilisateurs" activeClassName="active-link">Gestion des Utilisateurs</NavLink>

@@ -9,8 +9,9 @@ const Proprietaire = () => {
     adresse: '',
     phoneNumber: '',
     email: '',
+    service:''
   });
-
+  const [successMessage, setSuccessMessage] = useState(''); // Ensure successMessage is declared
   const [propriete, setProperties] = useState([{ adresse: '', surface: '', valeur: '' }]);
   const [editingOwner, setEditingOwner] = useState(null);
   const [owners, setOwners] = useState([]);
@@ -45,7 +46,7 @@ const Proprietaire = () => {
   };
 
   const addPropertyField = () => {
-    setProperties([...propriete, { adresse: '', surface: '', valeur: '' }]);
+    setProperties([...propriete, { adresse: '', surface: '', valeur: '' ,service:''}]);
   };
 
   const handleSubmit = async (e) => {
@@ -56,10 +57,15 @@ const Proprietaire = () => {
         setEditingOwner(null);
       } else {
         await axios.post('http://localhost:3001/api/proprietaires', { ...newOwner, propriete: propriete });
+        setSuccessMessage('Propriétaire ajouté avec succès !');
       }
-      setNewOwner({ nom: '', prenom: '', adresse: '', phoneNumber: '', email: '' });
-      setProperties([{ adresse: '', surface: '', valeur: '' }]);
+      setNewOwner({ nom: '', prenom: '', adresse: '', phoneNumber: '', email: '',service:'' });
+      setProperties([{ adresse: '', surface: '', valeur: '',service:'' }]);
       fetchOwners();
+       // Actualiser la liste des locataires après ajout
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000);
     } catch (error) {
       if (error.response && error.response.status === 400) {
         setErrorMessage(error.response.data.error);
@@ -81,7 +87,7 @@ const Proprietaire = () => {
             const id = owner.id;
             const token = localStorage.getItem('token');
             console.log('Token:', token); // Vérifiez que le token est bien récupéré
-            const response = await axios.delete(`http://localhost:3001/api/locataires/${id}`, {
+            const response = await axios.delete(`http://localhost:3001/api/proprietaires/${id}`, {
                 headers: {
                     'x-access-token': token
                 }
@@ -171,6 +177,20 @@ const Proprietaire = () => {
                 placeholder="Adresse"
                 required
               />
+              <label>Service de la propriété:</label>
+<select
+  name="service"
+  value={property.service}
+  onChange={(e) => handlePropertyChange(index, e)}
+  required
+>
+  <option value="">Sélectionnez le service</option>
+  <option value="Appartement">Appartement</option>
+  <option value="Studio">Studio</option>
+  <option value="Villa">Villa</option>
+  {/* Ajoutez d'autres options si nécessaire */}
+</select>
+
               <label>Surface de la propriété:</label>
               <input
                 type="text"
@@ -201,6 +221,11 @@ const Proprietaire = () => {
           <button onClick={() => setErrorMessage('')}>Fermer</button>
         </div>
       )}
+      {successMessage && (
+  <div className="success-message">
+    {successMessage}
+  </div>
+)}
       <div className="owners-container">
         <button onClick={() => setShowOwners(!showOwners)}>Afficher tous les propriétaires</button>
         {showOwners && (

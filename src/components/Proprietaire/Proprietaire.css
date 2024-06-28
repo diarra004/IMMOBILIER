@@ -129,5 +129,17 @@
   .error-dialog button:hover {
     background-color: #d32f2f;
   }
+  .success-message {
+    background-color: lightgreen;
+    color: green;
+    padding: 10px;
+    border: 1px solid darkgreen;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px darkgreen;
+  }
   
   

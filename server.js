@@ -71,8 +71,65 @@ const verifyJWT = (req, res, next) => {
         next();
     });
 };
+// Exemple de calcul de date d'échéance pour chaque paiement
+app.post('/api/paiements', (req, res) => {
+    const { locataire_id, mois, montant, etat, caution, mode_paiement } = req.body;
+    const datePaiement = new Date(); // Utilisation de la date actuelle, ou récupération de la date de paiement depuis req.body
+    let dateEcheance;
 
+    // Calcul de la date d'échéance basée sur le mois
+    const moisCorrespondance = {
+        'janvier': 0, 'février': 1, 'mars': 2, 'avril': 3, 'mai': 4, 'juin': 5,
+        'juillet': 6, 'août': 7, 'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11
+    };
 
+    if (moisCorrespondance.hasOwnProperty(mois.toLowerCase())) {
+        const moisIndex = moisCorrespondance[mois.toLowerCase()];
+        if (moisIndex >= 0 && moisIndex <= 10) {
+            dateEcheance = new Date(datePaiement.getFullYear(), moisIndex + 1, 1);
+        } else {
+            // Pour décembre, la date d'échéance sera le 1er janvier de l'année suivante
+            dateEcheance = new Date(datePaiement.getFullYear() + 1, 0, 1);
+        }
+    } else {
+        return res.status(400).json({ error: 'Mois invalide' });
+    }
+
+    // Insertion du paiement dans la base de données
+    const query = 'INSERT INTO Paiements (locataire_id, mois, montant, etat, date_paiement, caution, mode_paiement, date_echeance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [locataire_id, mois, montant, etat, datePaiement, caution, mode_paiement, dateEcheance], (err, result) => {
+        if (err) {
+            console.error('Erreur lors de l\'insertion du paiement:', err);
+            res.status(500).send('Erreur lors de l\'enregistrement du paiement');
+            return;
+        }
+        console.log('Paiement enregistré avec succès');
+        res.status(200).send('Paiement enregistré avec succès');
+    });
+});
+
+// Route GET pour récupérer les paiements en retard
+app.get('/api/arrieres', async (req, res) => {
+    try {
+        const query = `
+            SELECT l.id, l.name, l.email, p.montant, p.date_paiement, p.date_echeance, p.mois
+            FROM Locataires l
+            JOIN Paiements p ON l.id = p.locataire_id
+            WHERE p.date_echeance < CURDATE() AND p.etat != 'payé'
+        `;
+        db.query(query, (err, result) => {
+            if (err) {
+                console.error('Erreur lors de la récupération des arriérés:', err);
+                res.status(500).send('Erreur lors de la récupération des arriérés');
+                return;
+            }
+            res.status(200).json(result);
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des arriérés:', error);
+        res.status(500).send('Erreur lors de la récupération des arriérés');
+    }
+});
 
 // Exemple de route protégée
 app.get('/api/me', verifyJWT, (req, res) => {
@@ -92,39 +149,81 @@ app.get('/api/me', verifyJWT, (req, res) => {
 });
 
 
-// Route pour ajouter un locataire
 app.post('/api/locataires', (req, res) => {
-    const { name, email, phoneNumber, entryDate, proprietaire, montantLocation, adresse, service } = req.body;
-    
+    const { name, email, phoneNumber, entryDate, proprietaire_id, proprieteLoueeId, montantLocation, service } = req.body;
+    console.log('Requête POST pour ajouter un locataire reçue');
+    console.log('Paramètres reçus:', req.body);
+
     // Vérification si l'email existe déjà
-    db.query('SELECT * FROM locataires WHERE email = ?', email, (err, rows) => {
+    db.query('SELECT * FROM locataires WHERE email = ?', [email], (err, rows) => {
         if (err) {
-            return res.status(500).json({ error: err });
+            console.error('Erreur lors de la vérification de l\'email:', err);
+            return res.status(500).json({ error: 'Erreur serveur lors de la vérification de l\'email' });
         }
         if (rows.length > 0) {
-            return res.status(400).json({ error: 'Veuillez renseigner un autre email, cet email existe déjà.' });
+            return res.status(400).json({ error: 'Cet email est déjà utilisé, veuillez en choisir un autre.' });
         }
 
         // Vérification si le numéro de téléphone existe déjà
-        db.query('SELECT * FROM locataires WHERE phoneNumber = ?', phoneNumber, (err, rows) => {
+        db.query('SELECT * FROM locataires WHERE phoneNumber = ?', [phoneNumber], (err, rows) => {
             if (err) {
-                return res.status(500).json({ error: err });
+                console.error('Erreur lors de la vérification du numéro de téléphone:', err);
+                return res.status(500).json({ error: 'Erreur serveur lors de la vérification du numéro de téléphone' });
             }
             if (rows.length > 0) {
-                return res.status(400).json({ error: 'Veuillez renseigner un autre numéro de téléphone, ce numéro de téléphone existe déjà.' });
+                return res.status(400).json({ error: 'Ce numéro de téléphone est déjà utilisé, veuillez en choisir un autre.' });
             }
 
             // Insertion du locataire si l'email et le numéro de téléphone sont uniques
-            const sql = 'INSERT INTO locataires (name, email, phoneNumber, entryDate, proprietaire, montantLocation, adresse, service) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-            db.query(sql, [name, email, phoneNumber, entryDate, proprietaire,montantLocation, adresse, service], (err, result) => {
+            const sql = 'INSERT INTO locataires (name, email, phoneNumber, entryDate, proprietaire_id, proprieteLoueeId, montantLocation, service) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            db.query(sql, [name, email, phoneNumber, entryDate, proprietaire_id, proprieteLoueeId, montantLocation, service], (err, result) => {
                 if (err) {
-                    return res.status(500).json({ error: err });
+                    console.error('Erreur lors de l\'insertion du locataire:', err);
+                    return res.status(500).json({ error: 'Erreur serveur lors de l\'insertion du locataire' });
                 }
-                res.status(201).send('Locataire ajouté');
+                res.status(201).send('Locataire ajouté avec succès');
             });
         });
     });
 });
+
+
+app.get('/api/locataires/:phoneNumber', (req, res) => {
+    const phoneNumber = req.params.phoneNumber;
+
+    const sql = `
+        SELECT 
+            l.id,
+            l.name,
+            l.email,
+            l.montantLocation,
+            l.service,
+            p.adresse AS adressePropriete,
+            pr.nom AS nomProprietaire,
+            pr.prenom AS prenomProprietaire
+        FROM locataires l
+        LEFT JOIN propriete p ON l.proprieteLoueeId = p.id
+        LEFT JOIN proprietaires pr ON l.proprietaire_id = pr.id
+        WHERE l.phoneNumber = ?
+    `;
+    
+    db.query(sql, [phoneNumber], (err, result) => {
+        if (err) {
+            console.error('Erreur lors de la requête SQL:', err);
+            return res.status(500).send(err);
+        }
+
+        if (result.length === 0) {
+            return res.status(404).send("Locataire non trouvé");
+        }
+
+        const { id, name, email, montantLocation, service, adressePropriete, nomProprietaire, prenomProprietaire } = result[0];
+        res.json({ id, name, email, montantLocation, service, adressePropriete, nomProprietaire, prenomProprietaire });
+    });
+});
+
+
+
 
 // Route pour obtenir les locataires
 app.get('/api/locataires', (req, res) => {
@@ -222,8 +321,8 @@ app.post('/api/proprietaires', (req, res) => {
                 const proprietaireId = result.insertId;
                 const propertyQueries = propriete.map(property => {
                     return new Promise((resolve, reject) => {
-                        const propertySql = 'INSERT INTO propriete (proprietaireId, adresse, surface, valeur) VALUES (?, ?, ?, ?)';
-                        db.query(propertySql, [proprietaireId, property.adresse, property.surface, property.valeur], (err, result) => {
+                        const propertySql = 'INSERT INTO propriete (proprietaireId, adresse, surface, valeur,service) VALUES (?, ?, ?, ?,?)';
+                        db.query(propertySql, [proprietaireId, property.adresse, property.surface, property.valeur,property.service], (err, result) => {
                             if (err) {
                                 return reject(err);
                             }
@@ -255,16 +354,24 @@ app.get('/api/proprietaires', (req, res) => {
     });
 });
 
-// Route pour obtenir le nombre de propriétés
-app.get('/api/propriete/count', (req, res) => {
-    const sql = 'SELECT COUNT(*) AS total FROM propriete';
+
+// Route pour obtenir la liste des propriétés disponibles
+app.get('/api/propriete', (req, res) => {
+    const proprietaireId = req.query.proprietaireId;
+    let sql = 'SELECT * FROM propriete';
+    if (proprietaireId) {
+        sql += ` WHERE proprietaireId = ${proprietaireId}`;
+    }
     db.query(sql, (err, result) => {
         if (err) {
             return res.status(500).send(err);
         }
-        res.json({ total: result[0].total });
+        res.json(result);
     });
 });
+
+
+
 
 
 
@@ -278,7 +385,7 @@ app.get('/api/proprietaires/count', (req, res) => {
     });
 });
 
-app.delete('/api/proprietaires/:id', (req, res) => {
+app.delete('/api/proprietaires/:id',verifyJWT, (req, res) => {
     const proprietaireId = req.params.id;
     // Vérifier le rôle de l'utilisateur
     if (req.user.role !== 'admin') {
@@ -362,5 +469,100 @@ app.get('/api/propriete/count', (req, res) => {
             return res.status(500).send(err);
         }
         res.json({ total: result[0].total });
+    });
+});
+app.get('/api/paiements/:locataire_id', (req, res) => {
+    const locataire_id = req.params.locataire_id;
+
+    const query = 'SELECT * FROM Paiements WHERE locataire_id = ?';
+    db.query(query, [locataire_id], (err, results) => {
+        if (err) {
+            console.error('Erreur lors de la récupération des paiements précédents:', err);
+            res.status(500).send('Erreur lors de la récupération des paiements précédents');
+            return;
+        }
+        res.status(200).json(results);
+    });
+});
+
+// API pour mettre à jour un paiement existant
+app.put('/api/paiements/:id', (req, res) => {
+    const paiementId = req.params.id;
+    const { locataire_id, mois, montant, etat } = req.body;
+
+    const updateQuery = `
+        UPDATE Paiements 
+        SET locataire_id = ?, mois = ?, montant = ?, etat = ?
+        WHERE id = ?
+    `;
+
+    db.query(updateQuery, [locataire_id, mois, montant, etat, paiementId], (err, result) => {
+        if (err) {
+            console.error('Erreur lors de la mise à jour du paiement:', err);
+            res.status(500).send('Erreur lors de la mise à jour du paiement');
+            return;
+        }
+
+        if (result.affectedRows === 0) {
+            res.status(404).send('Paiement non trouvé');
+        } else {
+            res.status(200).json({ id: paiementId, locataire_id, mois, montant, etat });
+        }
+    });
+});
+app.get('/api/rapport/mensuel', async (req, res) => {
+    const year = req.query.year;
+    try {
+      const query = 'SELECT mois, SUM(montant) AS total_encaisse FROM Paiements WHERE YEAR(date_paiement) = ? GROUP BY mois';
+      db.query(query, [year], (err, result) => {
+        if (err) {
+          console.error('Erreur lors de la récupération du rapport mensuel:', err);
+          res.status(500).send('Erreur lors de la récupération du rapport mensuel');
+          return;
+        }
+        res.status(200).json(result);
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération du rapport mensuel:', error);
+      res.status(500).send('Erreur lors de la récupération du rapport mensuel');
+    }
+  });
+  // Exemple de route GET pour récupérer les paiements en retard d'un locataire spécifique
+app.get('/api/arrieres/:locataireId', async (req, res) => {
+    const locataireId = req.params.locataireId;
+    try {
+        const query = `
+            SELECT l.id, l.name, l.email, p.montant, p.date_paiement, p.date_echeance, p.mois
+            FROM Locataires l
+            JOIN Paiements p ON l.id = p.locataire_id
+            WHERE l.id = ? AND p.date_echeance < CURDATE() AND p.etat != 'payé'
+        `;
+        db.query(query, [locataireId], (err, result) => {
+            if (err) {
+                console.error('Erreur lors de la récupération des arriérés:', err);
+                res.status(500).json({ error: 'Erreur lors de la récupération des arriérés.' });
+                return;
+            }
+            res.status(200).json(result);
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des arriérés:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des arriérés.' });
+    }
+});
+app.get('/api/arrieres/count', (req, res) => {
+    const query = `
+      SELECT COUNT(*) AS total
+      FROM Paiements
+      WHERE date_echeance < CURDATE() AND etat != 'payé'
+    `;
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error('Erreur lors de la récupération du nombre de paiements en retard:', err);
+        res.status(500).json({ error: 'Erreur lors de la récupération du nombre de paiements en retard' });
+        return;
+      }
+      console.log('SQL Result:', result); // Ajouté pour debug
+      res.json({ total: result[0].total });
     });
 });

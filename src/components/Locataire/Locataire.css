@@ -112,6 +112,19 @@ li {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
+.success-message {
+  background-color: lightgreen;
+  color: green;
+  padding: 10px;
+  border: 1px solid darkgreen;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 5px;
+  box-shadow: 0 4px 8px darkgreen;
+}
+
 
 .error-dialog p {
   margin: 0 0 10px;

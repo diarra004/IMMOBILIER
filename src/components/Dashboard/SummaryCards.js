@@ -3,16 +3,17 @@ import './SummaryCards.css';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
-
 const SummaryCards = () => {
     const [totalLocataires, setTotalLocataires] = useState(0);
     const [totalProprietaires, setTotalProprietaires] = useState(0);
     const [totalPropriete, setTotalPropriete] = useState(0);
+    const [totalArriere, setTotalArriere] = useState(0);
 
     useEffect(() => {
         fetchTotalLocataires();
         fetchTotalProprietaires();
         fetchTotalProprietes();
+        fetchTotalArriere();
     }, []);
 
     const fetchTotalLocataires = async () => {
@@ -23,15 +24,16 @@ const SummaryCards = () => {
             console.error('Erreur lors du chargement du nombre de locataires:', error);
         }
     };
+
     const fetchTotalProprietaires = async () => {
-        
         try {
             const response = await axios.get('http://localhost:3001/api/proprietaires/count');
             setTotalProprietaires(response.data.total);
         } catch (error) {
-            console.error('Erreur lors du chargement du nombre de proprietaires:', error);
+            console.error('Erreur lors du chargement du nombre de propriétaires:', error);
         }
     };
+
     const fetchTotalProprietes = async () => {
         try {
             const response = await axios.get('http://localhost:3001/api/propriete/count');
@@ -40,7 +42,17 @@ const SummaryCards = () => {
             console.error('Erreur lors du chargement du nombre de propriétés:', error);
         }
     };
-    
+
+    const fetchTotalArriere = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/arrieres/count');
+            console.log('API response:', response.data); // Ajouté pour debug
+            setTotalArriere(response.data.total);
+        } catch (error) {
+            console.error('Erreur lors du chargement du nombre de retard:', error);
+        }
+    };
+
     return (
         <div className="summary-cards">
             <div className="card">
@@ -49,15 +61,15 @@ const SummaryCards = () => {
             </div>
             <div className="card">
                 <h3>Propriétaires</h3>
-                <p>Total Proprietaires: {totalProprietaires}</p>
+                <p>Total Propriétaires: {totalProprietaires}</p>
             </div>
             <div className="card">
                 <h3>Propriétés</h3>
                 <p>Propriétés en Location: {totalPropriete}</p>
             </div>
             <div className="card">
-                <h3>Paiements en Retard</h3>
-                <p>Paiements En Retard: 10</p>
+                <h3>Arriérés</h3>
+                <p>Paiements en Retard: {totalArriere}</p>
             </div>
         </div>
     );

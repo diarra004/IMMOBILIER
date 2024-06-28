@@ -10,7 +10,7 @@
     position: absolute;
    
     top: 0px; /* Ajustez cette valeur pour augmenter l'espace entre l'en-tête et la barre latérale */
-    height: calc(200% - 300px); /* Ajustez cette valeur pour la hauteur totale de la barre latérale */
+    height: calc(400% - 400px); /* Ajustez cette valeur pour la hauteur totale de la barre latérale */
     overflow-y: auto;
 }
 

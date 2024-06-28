@@ -8,10 +8,11 @@ import'./Dashboard.css';
 const Dashboard = () => {
   // Exemple de données fictives pour les paiements mensuels et les arriérés
   const donnéesPaiementsMensuels = [
-    { mois: 'Jan', montant: 9000 },
-    { mois: 'Fév', montant:9000 },
-    { mois: 'Mar', montant: 1200 },
-    { mois: 'Avr', montant: 1200 },
+    { mois: 'Jan', montant: 363565 },
+    { mois: 'Fév', montant:350253 },
+    { mois: 'Mar', montant: 355671 },
+    { mois: 'Avr', montant: 350001 },
+    { mois: 'Mai', montant: 24 },
     // Ajoutez d'autres mois et montants au besoin
   ];
   const arrieresData = [

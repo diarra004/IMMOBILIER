@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './Rapport.css';
 
-const months = [
-  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-];
-
 const Rapport = () => {
-  const [reports, setReports] = useState(months.map(month => ({ month, total: '' })));
+  const [reports, setReports] = useState([]);
   const [year, setYear] = useState('');
+  const months = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ];
 
-  const handleInputChange = (e, month) => {
-    const { value } = e.target;
-    setReports(reports.map(report => report.month === month ? { ...report, total: value } : report));
+  useEffect(() => {
+    if (year) {
+      fetchReports();
+    }
+  }, [year]);
+
+  const fetchReports = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/rapport/mensuel?year=${year}`);
+      console.log(response.data);
+      setReports(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des rapports financiers mensuels:', error);
+    }
   };
 
   const handleYearChange = (e) => {
@@ -24,20 +35,20 @@ const Rapport = () => {
   };
 
   const calculateTotalAnnual = () => {
-    return reports.reduce((sum, report) => sum + (parseFloat(report.total) || 0), 0).toFixed(2);
+    return reports.reduce((sum, report) => sum + (parseFloat(report.total_encaisse) || 0), 0).toFixed(2);
   };
 
   const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(reports.map(({ month, total }) => ({ Mois: month, Total: total })));
+    const ws = XLSX.utils.json_to_sheet(reports.map(({ mois, total_encaisse }) => ({ Mois: mois, Total: total_encaisse })));
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Reports');
+    XLSX.utils.book_append_sheet(wb, ws, 'Rapports');
 
-    // Add title, year, and total annual
+    // Ajouter le titre, l'année et le total annuel
     XLSX.utils.sheet_add_aoa(ws, [['RAPPORT FINANCIER DE TGI IMMOBILIER']], { origin: 'A1' });
     XLSX.utils.sheet_add_aoa(ws, [['Année', year]], { origin: 'A2' });
     XLSX.utils.sheet_add_aoa(ws, [['Total Annuel', calculateTotalAnnual()]], { origin: 'B2' });
 
-    XLSX.writeFile(wb, 'financial_reports.xlsx');
+    XLSX.writeFile(wb, 'rapports_financiers.xlsx');
   };
 
   const exportToPDF = () => {
@@ -47,11 +58,10 @@ const Rapport = () => {
     doc.autoTable({
       startY: 40,
       head: [['Mois', 'Total Encaissé']],
-      body: reports.map(({ month, total }) => [month, total])
+      body: reports.map(({ mois, total_encaisse }) => [mois, total_encaisse])
     });
-   
     doc.text(`Total Annuel: ${calculateTotalAnnual()}`, 20, doc.lastAutoTable.finalY + 10);
-    doc.save('financial_reports.pdf');
+    doc.save('rapports_financiers.pdf');
   };
 
   return (
@@ -65,36 +75,28 @@ const Rapport = () => {
           onChange={handleYearChange}
           placeholder="Année"
         />
-        {months.map((month) => (
-          <div key={month}>
-            <input
-              type="number"
-              name={month}
-              value={reports.find(report => report.month === month).total}
-              onChange={(e) => handleInputChange(e, month)}
-              placeholder={month}
-            />
-          </div>
-        ))}
       </div>
       <button onClick={exportToExcel}>Exporter en Excel</button>
       <button onClick={exportToPDF}>Exporter en PDF</button>
-      
+
       <h2>Détails des Rapports</h2>
       <table id="reportsTable">
         <thead>
           <tr>
-            {months.map((month, index) => (
-              <th key={index}>{month}</th>
-            ))}
+            <th>Mois</th>
+            <th>Total Encaissé</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            {reports.map((report, index) => (
-              <td key={index}>{parseFloat(report.total).toFixed(2)}</td>
-            ))}
-          </tr>
+          {months.map((month, index) => {
+            const report = reports.find(r => r.mois === month) || { total_encaisse: 0 };
+            return (
+              <tr key={index}>
+                <td>{month}</td>
+                <td>{parseFloat(report.total_encaisse).toFixed(2)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <h3>Total Annuel: {calculateTotalAnnual()}</h3>
