@@ -24,14 +24,19 @@ const Sidebar = ({ role }) => {
                     <NavLink to="/rapport" activeClassName="active-link">Rapports</NavLink>
                 </li>
                 <li>
-                    <NavLink to="/quittance" activeClassName="active-link">Quittances et Bulletins de versements</NavLink>
+                    <NavLink to="/quittance" activeClassName="active-link">Quittances </NavLink>
                 </li>
+              
                 <li>
                     <NavLink to="/arrieres" activeClassName="active-link">Arrierer</NavLink>
                 </li>
+                <li>
+                    <NavLink to="/versement" activeClassName="active-link">Bulletins de versements</NavLink>
+                </li>
+                
                 {role === 'admin' && (
                     <li>
-                        <NavLink to="/gestion-utilisateurs" activeClassName="active-link">Gestion des Utilisateurs</NavLink>
+                        <NavLink to="/gestionUtilisateurs" activeClassName="active-link">Gestion des Utilisateurs</NavLink>
                     </li>
                 )}
             </ul>

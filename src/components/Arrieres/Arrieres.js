@@ -27,6 +27,10 @@ const Arrieres = () => {
       console.error('Erreur lors de la génération du rappel:', error);
     }
   };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Renvoie la partie YYYY-MM-DD de la date
+  };
 
   return (
     <div className="arrieres">
@@ -51,7 +55,7 @@ const Arrieres = () => {
               <td>{locataire.name}</td>
               <td>{locataire.email}</td>
               <td>{locataire.montant}</td>
-              <td>{locataire.date_echeance}</td>
+              <td>{formatDate(locataire.date_echeance)}</td>
               <td>{locataire.mois}</td>
               <td>
                 <button onClick={() => handleRappel(locataire.id)}>Générer un Rappel</button>

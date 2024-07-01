@@ -100,7 +100,7 @@ const Quittance = () => {
       // Tableau des informations : Propriétaire, Nom du locataire et Date du paiement
       const tableInfo = [
         ['Propriétaire', 'Nom du locataire', 'Date du paiement'],
-        [`${locataireInfo.nomProprietaire} ${locataireInfo.prenomProprietaire}`, locataireInfo.name, selectedPayment.date_paiement],
+        [`${locataireInfo.nomProprietaire} ${locataireInfo.prenomProprietaire}`, locataireInfo.name, formatDate(selectedPayment.date_paiement)],
       ];
       doc.autoTable({
         startY: 40,
@@ -147,7 +147,7 @@ if (arrieres.length > 0) {
     ...arrieres.map(arriere => [
       arriere.mois,
       `${arriere.montant} FCFA`,
-      arriere.date_echeance,
+      formatDate(arriere.date_echeance),
     ])
   ];
 
@@ -184,6 +184,10 @@ if (arrieres.length > 0) {
       console.error('Erreur lors de la génération de la quittance de loyer en PDF:', error);
       setErrorMessage('Erreur lors de la génération de la quittance de loyer en PDF.');
     }
+  };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Renvoie la partie YYYY-MM-DD de la date
   };
  
     return (
@@ -277,7 +281,7 @@ if (arrieres.length > 0) {
                   <tbody>
                     <tr>
                       <td>{selectedPayment.mois}</td>
-                      <td>{selectedPayment.date_paiement}</td>
+                      <td>{formatDate(selectedPayment.date_paiement)}</td>
                       <td>{selectedPayment.montant}</td>
                       <td>{selectedPayment.caution}</td>
                       <td>{selectedPayment.mode_paiement}</td>
@@ -300,7 +304,7 @@ if (arrieres.length > 0) {
           <tr key={arriere.id}>
             <td>{arriere.mois}</td>
             <td>{`${arriere.montant} FCFA`}</td>
-            <td>{arriere.date_echeance}</td>
+            <td>{formatDate(arriere.date_echeance)}</td>
           </tr>
         ))}
       </tbody>

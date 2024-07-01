@@ -15,6 +15,22 @@ const Paiement = () => {
   const [amountPaid, setAmountPaid] = useState('');
   const [paiements, setPaiements] = useState(Array(12).fill().map(() => ({ id: null, montant: '', etat: '' })));
   const [successMessage, setSuccessMessage] = useState('');
+// Effet pour recalculer la commission lorsque le montant est modifié
+useEffect(() => {
+  if (montantLocation !== '' && commission === '') {
+    calculateCommission();
+  }
+}, [montantLocation]);
+
+
+// Fonction pour calculer la commission
+const calculateCommission = () => {
+  const montant = parseFloat(montantLocation);
+  const commissionAmount = montant * 0.15; // Calcul de la commission (15% du montant)
+  setCommission(commissionAmount);
+};
+
+
 
   useEffect(() => {
     if (locataireInfo) {
@@ -69,10 +85,7 @@ const Paiement = () => {
   const handleTotalDueChange = (e) => {
     setTotalDue(e.target.value);
   };
-  const handleCommissionChange = (e) => {
-    setCommission(e.target.value);
-  };
-
+  
   
 
 // Fonction pour gérer le changement de montant payé
@@ -148,6 +161,17 @@ const handleAmountPaidChange = (e) => {
               ...(etat === 'reste à payer' ? {} : { caution: caution, mode_paiement: modePaiement })
             });
             paiements[index].id = response.data.id;
+
+            // Après avoir enregistré le paiement, enregistrer le versement
+            const commissionAmount = montant * 0.15;
+            const montantVersement = montant - commissionAmount;
+
+            await axios.post('http://localhost:3001/api/versements', {
+              locataire_id: locataireInfo.id,
+              nom_proprietaire: locataireInfo.nomProprietaire,
+              montant: montantVersement,
+              date_versement: new Date().toISOString().split('T')[0]
+            });
           }
         }
       }
@@ -257,8 +281,7 @@ const handleAmountPaidChange = (e) => {
                 type="number"
                 id="commission"
                 value={commission}
-                onChange={handleCommissionChange}
-               
+                disabled // La commission est calculée automatiquement, donc l'entrée est désactivée
               />
             </div>
             <div>

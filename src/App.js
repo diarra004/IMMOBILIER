@@ -1,4 +1,4 @@
-import React, { useState ,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import Login from './components/Login';
@@ -9,18 +9,24 @@ import Rapport from './components/Rapport/Rapport';
 import Paiement from './components/Paiement/Paiement';
 import Quittance from './components/Quittance/Quittance';
 import Arrieres from './components/Arrieres/Arrieres';
+import Versement from './components/Versement/Versement';
+import GestionUtilisateurs from './components/GestionUtilisateurs/GestionUtilisateurs'; // Importer le composant
+
+
 
 import './App.css';
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [role, setRole] = useState('');
+
     useEffect(() => {
         const storedRole = localStorage.getItem('role');
         if (storedRole) {
-          setRole(storedRole);
+            setRole(storedRole);
         }
-      }, []);
+    }, []);
+
     return (
         <Router>
             <div className="App">
@@ -34,7 +40,7 @@ const App = () => {
                         <Route
                             path="/*"
                             element={
-                                <MainLayout>
+                                <MainLayout role={role}>
                                     <Routes>
                                         <Route path="/dashboard" element={<Dashboard />} />
                                         <Route path="/locataire" element={<Locataire />} />
@@ -42,9 +48,11 @@ const App = () => {
                                         <Route path="/rapport" element={<Rapport />} />
                                         <Route path="/paiement" element={<Paiement />} />
                                         <Route path="/quittance" element={<Quittance />} />
+                                        <Route path="/versement" element={<Versement />} />
                                         <Route path="/arrieres" element={<Arrieres />} />
-                                        {/* Ajoutez d'autres routes ici si nécessaire */}
-                                       
+                                        {role === 'admin' && (
+                                            <Route path="/gestionUtilisateurs" element={<GestionUtilisateurs />} />
+                                        )}
                                     </Routes>
                                 </MainLayout>
                             }

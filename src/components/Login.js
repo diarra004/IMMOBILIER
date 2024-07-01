@@ -29,6 +29,7 @@ const Login = ({ setAuth }) => {
                 localStorage.setItem('username', userData.username); // Stocker le nom d'utilisateur dans le localStorage
                 localStorage.setItem('role', userData.role);
                 setAuth(true);
+                setRole(userData.role);
                 navigate('/dashboard');
             } else {
                 if (response.status === 404) {

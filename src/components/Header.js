@@ -27,7 +27,7 @@ const Header = () => {
     // Fonction pour récupérer le nombre de paiements en retard
     const fetchLatePaymentsCount = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/arrieres');
+            const response = await axios.get('http://localhost:3001/api/arrieres/count');
             setLatePaymentsCount(response.data.length); // Mettre à jour le nombre de paiements en retard
         } catch (error) {
             console.error('Erreur lors de la récupération des paiements en retard :', error);

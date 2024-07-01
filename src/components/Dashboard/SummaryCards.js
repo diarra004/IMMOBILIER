@@ -7,13 +7,13 @@ const SummaryCards = () => {
     const [totalLocataires, setTotalLocataires] = useState(0);
     const [totalProprietaires, setTotalProprietaires] = useState(0);
     const [totalPropriete, setTotalPropriete] = useState(0);
-    const [totalArriere, setTotalArriere] = useState(0);
+    const [latePaymentsCount, setLatePaymentsCount] = useState(0);
 
     useEffect(() => {
         fetchTotalLocataires();
         fetchTotalProprietaires();
         fetchTotalProprietes();
-        fetchTotalArriere();
+        fetchLatePaymentsCount(); // Appel pour récupérer le nombre de paiements en retard
     }, []);
 
     const fetchTotalLocataires = async () => {
@@ -43,16 +43,15 @@ const SummaryCards = () => {
         }
     };
 
-    const fetchTotalArriere = async () => {
+    const fetchLatePaymentsCount = async () => {
         try {
             const response = await axios.get('http://localhost:3001/api/arrieres/count');
-            console.log('API response:', response.data); // Ajouté pour debug
-            setTotalArriere(response.data.total);
+            console.log('Nombre d\'arriérés récupéré:', response.data.total); // Afficher le nombre récupéré dans la console
+            setLatePaymentsCount(response.data.total); // Mettre à jour le nombre de paiements en retard
         } catch (error) {
-            console.error('Erreur lors du chargement du nombre de retard:', error);
+            console.error('Erreur lors de la récupération du nombre de paiements en retard :', error);
         }
     };
-
     return (
         <div className="summary-cards">
             <div className="card">
@@ -69,7 +68,7 @@ const SummaryCards = () => {
             </div>
             <div className="card">
                 <h3>Arriérés</h3>
-                <p>Paiements en Retard: {totalArriere}</p>
+                <p>Paiements en Retard: {latePaymentsCount}</p>
             </div>
         </div>
     );

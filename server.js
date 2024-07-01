@@ -32,28 +32,43 @@ const JWT_SECRET = 'a623ef4e24ef45c8fbcdd6ed29dffb57a6232f848a7fc940cdc691fe663c
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE username = ?';
-    db.query(query, [username], (err, results) => {
+    // Vérifier d'abord dans la table admins
+    const adminQuery = 'SELECT * FROM admins WHERE username = ?';
+    db.query(adminQuery, [username], (err, adminResults) => {
         if (err) {
             return res.status(500).json({ error: 'Server error' });
         }
-        if (results.length === 0) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        if (adminResults.length > 0) {
+            const admin = adminResults[0];
+            if (password !== admin.password) {
+                return res.status(401).json({ auth: false, token: null, error: 'Mot de passe invalide' });
+            }
+
+            const token = jwt.sign({ id: admin.id, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+            return res.status(200).json({ auth: true, token, username: admin.username, role: 'admin' });
         }
 
-        const user = results[0];
-        if (password !== user.password) {
-            return res.status(401).json({ auth: false, token: null, error: 'Mot de passe invalide' });
-        }
-       
+        // Si non trouvé dans la table admins, vérifier dans la table users
+        const userQuery = 'SELECT * FROM users WHERE username = ?';
+        db.query(userQuery, [username], (err, userResults) => {
+            if (err) {
+                return res.status(500).json({ error: 'Server error' });
+            }
+            if (userResults.length === 0) {
+                return res.status(404).json({ error: 'Utilisateur non trouvé' });
+            }
 
-        const token = jwt.sign({ id: user.id  , role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+            const user = userResults[0];
+            if (password !== user.password) {
+                return res.status(401).json({ auth: false, token: null, error: 'Mot de passe invalide' });
+            }
 
-        // Si la connexion réussit
-res.status(200).json({ auth: true, token, username: user.username , role: user.role,  });
-
+            const token = jwt.sign({ id: user.id, role: 'agent' }, JWT_SECRET, { expiresIn: '24h' });
+            return res.status(200).json({ auth: true, token, username: user.username, role: 'agent' });
+        });
     });
 });
+
 
 const verifyJWT = (req, res, next) => {
     const token = req.headers['x-access-token'];
@@ -112,10 +127,21 @@ app.post('/api/paiements', (req, res) => {
 app.get('/api/arrieres', async (req, res) => {
     try {
         const query = `
-            SELECT l.id, l.name, l.email, p.montant, p.date_paiement, p.date_echeance, p.mois
-            FROM Locataires l
-            JOIN Paiements p ON l.id = p.locataire_id
-            WHERE p.date_echeance < CURDATE() AND p.etat != 'payé'
+        SELECT 
+        l.id, 
+        l.name, 
+        l.email, 
+        p.montant, 
+        DATE(p.date_paiement) AS date_paiement, 
+        DATE(p.date_echeance) AS date_echeance, 
+        p.mois
+    FROM 
+        Locataires l
+    JOIN 
+        Paiements p ON l.id = p.locataire_id
+    WHERE 
+        p.date_echeance < CURDATE() AND 
+        p.etat != 'payé'    
         `;
         db.query(query, (err, result) => {
             if (err) {
@@ -550,19 +576,105 @@ app.get('/api/arrieres/:locataireId', async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la récupération des arriérés.' });
     }
 });
+/// Endpoint pour récupérer le nombre de paiements en retard
 app.get('/api/arrieres/count', (req, res) => {
-    const query = `
+    const sql = `
       SELECT COUNT(*) AS total
       FROM Paiements
       WHERE date_echeance < CURDATE() AND etat != 'payé'
     `;
-    db.query(query, (err, result) => {
+    db.query(sql, (err, result) => {
       if (err) {
         console.error('Erreur lors de la récupération du nombre de paiements en retard:', err);
         res.status(500).json({ error: 'Erreur lors de la récupération du nombre de paiements en retard' });
         return;
       }
-      console.log('SQL Result:', result); // Ajouté pour debug
+      console.log('SQL Result:', result);
       res.json({ total: result[0].total });
     });
 });
+// Créer un nouveau versement
+app.post('/api/versements', (req, res) => {
+    const { locataire_id, nom_proprietaire, montant, date_versement } = req.body;
+  
+    const sql = `INSERT INTO versement (locataire_id, nom_proprietaire, montant, date_versement, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`;
+  
+    db.query(sql, [locataire_id, nom_proprietaire, montant, date_versement], (err, result) => {
+      if (err) {
+        console.error('Erreur lors de la création du versement:', err);
+        return res.status(500).send('Erreur serveur');
+      }
+      res.status(201).json({ id: result.insertId, locataire_id, nom_proprietaire, montant, date_versement });
+
+    });
+  });
+
+  // Récupérer tous les versements
+app.get('/api/versements', (req, res) => {
+    const { phoneNumber } = req.query;
+  let sql;
+  let params = [];
+
+  
+    // Si un numéro de téléphone est fourni
+    sql = `
+      SELECT v.*, l.name AS nom_locataire , l.service AS service_locataire
+      FROM versement v
+      JOIN locataires l ON v.locataire_id = l.id
+      JOIN proprietaires p ON l.proprietaire_id = p.id
+      WHERE p.phoneNumber = ?
+    `;
+    params.push(phoneNumber);
+  
+  
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des versements:', err);
+      return res.status(500).send('Erreur serveur');
+    }
+    res.status(200).json(results);
+  });
+});
+// Endpoint GET pour récupérer tous les utilisateurs
+app.get('/api/users', (req, res) => {
+    const sql = 'SELECT * FROM users';
+    db.query(sql, (err, results) => {
+      if (err) throw err;
+      res.json(results);
+    });
+  });
+  
+  // Endpoint POST pour ajouter un nouvel utilisateur
+  app.post('/api/users', (req, res) => {
+    const { username, password, role } = req.body;
+    const sql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
+    db.query(sql, [username, password, role], (err, result) => {
+      if (err) throw err;
+      console.log('Nouvel utilisateur ajouté : ', { id: result.insertId, username, role });
+      res.status(201).send('Utilisateur ajouté avec succès');
+    });
+  });
+  
+  // Endpoint PUT pour mettre à jour un utilisateur par ID
+  app.put('/api/users/:id', (req, res) => {
+    const { username, password, role } = req.body;
+    const id = req.params.id;
+    const sql = 'UPDATE users SET username = ?, password = ?, role = ? WHERE id = ?';
+    db.query(sql, [username, password, role, id], (err, result) => {
+      if (err) throw err;
+      console.log('Utilisateur mis à jour : ', { id, username, role });
+      res.send('Utilisateur mis à jour avec succès');
+    });
+  });
+  
+  // Endpoint DELETE pour supprimer un utilisateur par ID
+  app.delete('/api/users/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = 'DELETE FROM users WHERE id = ?';
+    db.query(sql, [id], (err, result) => {
+      if (err) throw err;
+      console.log('Utilisateur supprimé avec ID : ', id);
+      res.send('Utilisateur supprimé avec succès');
+    });
+  });
+  
